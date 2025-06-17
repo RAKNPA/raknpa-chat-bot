@@ -61,7 +61,10 @@ else:
 
         splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
         chunks = splitter.split_documents(all_docs)
-        embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
+        embeddings = OpenAIEmbeddings(
+    openai_api_key=openai_api_key,
+    model="text-embedding-3-small"
+)
         vectordb = FAISS.from_documents(chunks, embeddings)
         vectordb.save_local(index_path)
         with open(meta_path, "wb") as f:
