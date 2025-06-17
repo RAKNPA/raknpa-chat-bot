@@ -1,4 +1,5 @@
 # raknpa_chat_bot.py
+
 import os
 import pickle
 import streamlit as st
@@ -10,17 +11,16 @@ from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
 
 # --- CONFIG ---
-openai_api_key = st.secrets["OPENAI_API_KEY"]  # ✅ Load safely from secrets
-  
-PDF_FILES = ["data/PO_Guide_Part-1.pdf"]  # Add more PDFs to this list
+openai_api_key = st.secrets["OPENAI_API_KEY"]
+PDF_FILES = ["data/PO_Guide_Part-1.pdf"]  # Preloaded PDF(s)
 
 # --- PAGE SETTINGS ---
 st.set_page_config(page_title="RAKNPA Chat Bot", layout="wide")
 
-# --- HEADER ---
+# --- HEADER (Logo + Academy Name) ---
 header_col1, header_col2 = st.columns([0.1, 0.9])
 with header_col1:
-    st.image("logo.png", width=80)  # Use your PNG logo file
+    st.image("logo.png", width=80)
 with header_col2:
     st.markdown("""
     <div style='display: flex; align-items: center; height: 100px;'>
@@ -28,6 +28,7 @@ with header_col2:
     </div>
     """, unsafe_allow_html=True)
 
+# --- Title Box ---
 st.markdown("""
 <div style='border: 2px solid #8B0000; padding: 10px; border-radius: 6px; text-align: center;'>
     <h3 style='color: #8B0000; margin: 0;'>RAKNPA Chat Bot</h3>
@@ -44,6 +45,7 @@ index_path = os.path.join("indexes", f"{index_key}.faiss")
 meta_path = os.path.join("indexes", f"{index_key}.pkl")
 os.makedirs("indexes", exist_ok=True)
 
+# --- INDEXING ---
 if os.path.exists(index_path) and os.path.exists(meta_path):
     with st.spinner("🔄 Loading saved document index..."):
         with open(meta_path, "rb") as f:
@@ -51,7 +53,7 @@ if os.path.exists(index_path) and os.path.exists(meta_path):
             vectordb = FAISS.load_local(index_path, stored_data["embeddings"])
         st.success("✅ Index loaded from disk.")
 else:
-    with st.spinner("📚 Processing documents..."):
+    with st.spinner("📚 Processing and indexing document(s)..."):
         all_docs = []
         for pdf_path in pdf_paths:
             loader = PyPDFLoader(pdf_path)
@@ -66,7 +68,7 @@ else:
             pickle.dump({"embeddings": embeddings}, f)
         st.success("✅ New index created.")
 
-# --- Chat Interface ---
+# --- CHAT INTERFACE ---
 st.divider()
 st.subheader("💬 Ask a question")
 query = st.text_input("Type your question here:")
